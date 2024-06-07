@@ -10,6 +10,7 @@
 #include <atomic>
 #include <map>
 #include <set>
+#include <vector>
 
 class FolderSync {
 	private:
@@ -20,14 +21,15 @@ class FolderSync {
 		std::atomic<bool> stopFlag;
 		std::thread		inputThread;
 		std::map<std::string, std::filesystem::file_time_type> files_last_write_time;
-		std::set<std::string> dirs_last_state; //not sure if I'll keep this
+		std::set<std::string> dirs_last_state; //?not sure if I'll keep this
+		std::set<std::string> current_dirs;
 		void checkDirectoryExists(std::string path);
 		void checkLogFileAndCreate(const std::string path);
 		void syncFolders(void);
 		void log(const std::string &str);
 		void monitorInput(void);
-		bool hasFolderContentChanged(const std::filesystem::path& path);
-		void updateReplica(const std::filesystem::path& path);
+		bool hasFolderContentChanged(void);
+		// void updateReplica(const std::filesystem::path& path);
 		std::string trimPath(std::string);
 
 

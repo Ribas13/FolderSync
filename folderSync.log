@@ -1,2 +1,13 @@
-[2024-06-07 00:51:58] Launched FolderSync
+[2024-06-07 15:30:09] Launched FolderSync
 
+[2024-06-07 15:30:15] Copied file: test.c
+
+[2024-06-07 15:30:30] Copied directory: dir1
+[2024-06-07 15:30:30] Copied file: dir1/hello.py
+
+[2024-06-07 15:30:33] Removed: dir1
+[2024-06-07 15:30:33] Removed: dir1/hello.py
+
+[2024-06-07 15:30:36] Removed: test.c
+
+[2024-06-07 15:30:40] Program ended by user

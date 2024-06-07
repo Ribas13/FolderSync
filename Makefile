@@ -3,8 +3,8 @@ C_PP = c++
 OBJS_D = objs
 C_PPFLAGS = -Wall -Wextra -Werror -g #-fsanitize=address
 
-SRC =	main.cpp		\
-		FolderSync.cpp
+SRC =	src/main.cpp		\
+		src/FolderSync.cpp
 
 OBJS = $(addprefix $(OBJS_D)/,$(SRC:%.cpp=%.o))
 
