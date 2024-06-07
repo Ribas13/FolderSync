@@ -86,7 +86,7 @@ void FolderSync::log(const std::string &str) {
 		return ;
 	}
 	//Getting the time for the log
-	auto now = std::chrono::system_clock::now();
+	std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
 	std::time_t now_time_t = std::chrono::system_clock::to_time_t(now);
 
 	//Formatting the time for the log
@@ -125,25 +125,25 @@ bool FolderSync::hasFolderContentChanged() {
 	std::vector<fs::path> toRemove;
 
 	//Iterate over the replica directory first
-	for (const auto& entry : fs::recursive_directory_iterator(replica)) {
-		fs::path relativepath = fs::relative(entry.path(), replica);
-		fs::path sourcePath = src/ relativepath;
+	for (const fs::directory_entry& entry : fs::recursive_directory_iterator(replica)) {
+		fs::path relativepath = fs::relative(entry.path(), replica); //get the relative path from the replica dir
+		fs::path sourcePath = src / relativepath; //make the same path on the src dir
 
 		//If the file doesn't exist in the source directory, delete it
-		if (!fs::exists(sourcePath)) {
-			toRemove.push_back(entry.path());
+		if (!fs::exists(sourcePath)) { //meaning, it's been deleted from the src dir
+			toRemove.push_back(entry.path()); //add to the toRemove vector for later
 			hasChanged = true;
 		}
 	}
 
 	//delete the marked files and dirs
-	for (const auto& path : toRemove) {
+	for (const fs::path& path : toRemove) {
 		fs::remove_all(path);
-		log("Removed: " + trimPath(path.string()));
+		log("Removed: \'" + trimPath(path.string()) + "\'");
 	}
 
 	//Then iterate over the source directory
-	for (const auto& entry : fs::recursive_directory_iterator(src)) {
+	for (const fs::directory_entry& entry : fs::recursive_directory_iterator(src)) {
 		fs::path relativePath = fs::relative(entry.path(), src);
 		fs::path replicaPath = replica / relativePath;
 
@@ -152,15 +152,15 @@ bool FolderSync::hasFolderContentChanged() {
 			if (fs::is_directory(entry.path())) {
 				if (!fs::exists(replicaPath)) {
 					fs::create_directories(replicaPath);
-					log("Copied directory: " + trimPath(replicaPath.string()));
+					log("Copied directory: \'" + trimPath(replicaPath.string()) + "\'");
 					hasChanged = true;
 				}
 			} else {
-				auto sourceTime = fs::last_write_time(entry.path());
+				fs::file_time_type sourceTime = fs::last_write_time(entry.path());
 				fs::create_directories(replicaPath.parent_path());
 				fs::copy(entry.path(), replicaPath, fs::copy_options::overwrite_existing);
 				fs::last_write_time(replicaPath, sourceTime);
-				log("Copied file: " + trimPath(entry.path().string()));
+				log("Copied file: \'" + trimPath(entry.path().string()) + "\'");
 				hasChanged = true;
 			}
 		}
@@ -179,11 +179,11 @@ void FolderSync::evalLoop(void) {
 	log("Launched FolderSync\n");
 	while (true) {
 		
-		auto start = std::chrono::high_resolution_clock::now();
+		std::chrono::time_point<std::chrono::high_resolution_clock> start = std::chrono::high_resolution_clock::now();
 		syncFolders();
 		
 		//get time elapse and time interval until next sync window
-		auto end = std::chrono::high_resolution_clock::now();
+		std::chrono::time_point<std::chrono::high_resolution_clock> end = std::chrono::high_resolution_clock::now();
 		std::chrono::duration<double> elapsed = end - start;
 		std::chrono::duration<double> sleepTime = std::chrono::seconds(this->interval) - elapsed;
 
